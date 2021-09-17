@@ -19,9 +19,11 @@ clock = pg.time.Clock()
 #################### initialize settings ####################
 
 # custom init (background, font, image, position, speed)
-background = pg.image.load("D:/Development/Python/ddong/img/backgroundForest.png")
+background = pg.image.load(
+    "D:/Development/Python/pygame/ddong/img/backgroundForest.png"
+)
 
-character = pg.image.load("D:/Development/Python/ddong/img/alphaL.png")
+character = pg.image.load("D:/Development/Python/pygame/ddong/img/alphaL.png")
 character_size = character.get_rect().size
 character_width = character_size[0]
 character_height = character_size[1]
@@ -31,7 +33,7 @@ character_y_pos = SCREEN_HEIGHT - character_height
 to_x = 0
 character_speed = 10
 
-enemy = pg.image.load("D:/Development/Python/ddong/img/ddong.png")
+enemy = pg.image.load("D:/Development/Python/pygame/ddong/img/ddong.png")
 enemy_size = enemy.get_rect().size
 enemy_width = enemy_size[0]
 enemy_height = enemy_size[1]
@@ -55,10 +57,14 @@ while running:
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
                 to_x -= character_speed
-                character = pg.image.load("D:/Development/Python/ddong/img/alphaL.png")
+                character = pg.image.load(
+                    "D:/Development/Python/pygame/ddong/img/alphaL.png"
+                )
             elif event.key == pg.K_RIGHT:
                 to_x += character_speed
-                character = pg.image.load("D:/Development/Python/ddong/img/alphaR.png")
+                character = pg.image.load(
+                    "D:/Development/Python/pygame/ddong/img/alphaR.png"
+                )
 
         elif event.type == pg.KEYUP:
             to_x = 0
