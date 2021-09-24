@@ -13,7 +13,7 @@ root.geometry("+550+200")
 def file_open():
     files = filedialog.askopenfilenames(
         title="병합시킬 이미지를 선택해주세요.",
-        filetype=(("모든 파일", "*.*"), ("PNG 파일", "*.png"), ("JPG 파일", "*.jpg")),
+        filetype=(("모든 파일", "*.*"), ("PNG 파일", "*.png"), ("JPG 파일", "*.jpg"), ("BMP 파일", "*.bmp"), ("GIF 파일", "*.gif")),
         initialdir=r"D:\목포어린이도서관[전산]\2021년\4. 홈페이지\2021독서의달",
     )
     for file in files:
@@ -38,6 +38,18 @@ def save_file_path():
     txt_dest_path.insert(0, save_path)
 
 
+# 병합 프로세스
+def image_merge():
+    images = [Image.open(x) for x in list_file.get(0, END)] # class 'PIL.JpegImagePlugin.JpegImageFile' 타입으로 배열 저장
+    images_width = [x.size[0] for x in images.get(0, END)]
+    images_height = [x.size[1] for x in images.get(0, END)] 
+
+    print("이미지 가로 해상도 : ", images_width)
+    print("이미지 세로 해상도 : ", images_height)
+
+    width_max, height_total = max(images_width), sum(images_height) # canvas 생성을 위한 variable
+
+
 # 예외처리 : 이미지 미선택, 저장 경로 미설정
 def start():
     print("가로넓이 : ", cmb_width.get())
@@ -45,22 +57,22 @@ def start():
     print("포맷 : ", cmb_format.get())
 
     if len(txt_dest_path.get()) == 0:
-        msgbox.showerror(title=None, message="저장 경로가 설정되지 않았습니다.")
+        msgbox.showwarning(title=None, message="저장 경로가 설정되지 않았습니다.")
 
-    if list_file.size() <= 1:
+    if list_file.size() == 0:
         msgbox.showwarning(title=None, message="병합시킬 이미지가 존재하지 않습니다.")
 
     print("이미지 병합을 시작합니다.")
 
-
+# 미리보기 (다중 선택으로 인한 오류 발생시 예외처리)
 def file_preview():
-    img = Image.open(list_file.selection_get())
-    # print(type(img)) 변수 타입 class 'PIL.JpegImagePlugin.JpegImageFile'
     try:
+        img = Image.open(list_file.selection_get())
         img.show()
+        # print(type(img)) 변수 타입 class 'PIL.JpegImagePlugin.JpegImageFile'
     except:
-        # 일부러 오류 발생시켜야함.
-        msgbox.showerror(title=None, message="한 개의 이미지만 선택해주세요.")
+        return
+
 
 # 파일 프레임 (파일 추가, 선택 삭제)
 file_frame = Frame(root)
