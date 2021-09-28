@@ -40,14 +40,31 @@ def save_file_path():
 
 # 병합 프로세스
 def image_merge():
+    # list 이미지로부터 정보 추출
     images = [Image.open(x) for x in list_file.get(0, END)] # class 'PIL.JpegImagePlugin.JpegImageFile' 타입으로 배열 저장
-    images_width = [x.size[0] for x in images.get(0, END)]
-    images_height = [x.size[1] for x in images.get(0, END)] 
+    images_width = [x.size[0] for x in images]
+    images_height = [x.size[1] for x in images]
 
     print("이미지 가로 해상도 : ", images_width)
     print("이미지 세로 해상도 : ", images_height)
 
+    # canvas 준비
     width_max, height_total = max(images_width), sum(images_height) # canvas 생성을 위한 variable
+    print('이미지 가로 최대 값 : ', width_max, '\n이미지 세로 통합 값 : ', height_total)
+
+    # images resolution resizing
+    try:
+        # images_resizing = [x.resize((600,800)) for x in images]
+        # x.save('resizing_img{}.jpg'.format(x)) for x in images_resizing
+        for x in images:
+            img_resizing = x.resize((600,800))
+            img_resizing.save('img{}'.format(x))
+        print(img_resizing.size, img_resizing.mode)
+    except:
+        print('error')
+        return
+
+    # canvas 에 균일한 간격으로 배치
 
 
 # 예외처리 : 이미지 미선택, 저장 경로 미설정
@@ -56,13 +73,20 @@ def start():
     print("간격 : ", cmb_space.get())
     print("포맷 : ", cmb_format.get())
 
-    if len(txt_dest_path.get()) == 0:
-        msgbox.showwarning(title=None, message="저장 경로가 설정되지 않았습니다.")
-
     if list_file.size() == 0:
-        msgbox.showwarning(title=None, message="병합시킬 이미지가 존재하지 않습니다.")
+        msgbox.showwarning(title='경고', message="병합시킬 이미지가 존재하지 않습니다.")
+        msgbox.showinfo(message="이미지 병합이 중단되었습니다.")
+        return
+
+    if len(txt_dest_path.get()) == 0:
+        msgbox.showwarning(title='경고', message="저장 경로가 설정되어있지 않습니다.")
+        msgbox.showinfo(title='알림', message="이미지 병합이 중단되었습니다.")
+        return
 
     print("이미지 병합을 시작합니다.")
+
+    image_merge()
+
 
 # 미리보기 (다중 선택으로 인한 오류 발생시 예외처리)
 def file_preview():
@@ -71,6 +95,7 @@ def file_preview():
         img.show()
         # print(type(img)) 변수 타입 class 'PIL.JpegImagePlugin.JpegImageFile'
     except:
+        msgbox.showerror(title='실패', message='한개의 이미지만 선택해주세요.')
         return
 
 
