@@ -1,3 +1,5 @@
+import os
+import time
 import tkinter.ttk as ttk
 import tkinter.messagebox as msgbox
 from tkinter import *
@@ -49,23 +51,24 @@ def image_merge():
     print("이미지 세로 해상도 : ", images_height)
 
     # canvas 준비
-    width_max, height_total = max(images_width), sum(images_height) # canvas 생성을 위한 variable
+    width_max, height_total = max(images_width), sum(images_height)
     print('이미지 가로 최대 값 : ', width_max, '\n이미지 세로 통합 값 : ', height_total)
 
-    # images resolution resizing
-    try:
-        # images_resizing = [x.resize((600,800)) for x in images]
-        # x.save('resizing_img{}.jpg'.format(x)) for x in images_resizing
-        for x in images:
-            img_resizing = x.resize((600,800))
-            img_resizing.save('img{}'.format(x))
-        print(img_resizing.size, img_resizing.mode)
-    except:
-        print('error')
-        return
+    result_img = Image.new('RGB', (width_max, height_total), (255, 255, 255))
+    y_offset = 0
+    for idx, img in enumerate(images):
+        result_img.paste(img, (0, y_offset))
+        y_offset += img.size[1]  # 각 이미지 height value 꺼내와서 offset 변수 증감
 
-    # canvas 에 균일한 간격으로 배치
+        # progressbar sync
+        time.sleep(0.1)  # 동기화 확인용 나중에 삭제
+        progress = ((idx + 1) / len(images)) * 100  # (1,2,3... / 이미지 갯수) * 100 
+        p_var.set(progress)
+        progressbar.update()
 
+    dest_path = os.path.join(txt_dest_path.get(), 'mergeImage.jpg')
+    result_img.save(dest_path)
+    msgbox.showinfo(title='성공', message='이미지 병합이 완료되었습니다.')
 
 # 예외처리 : 이미지 미선택, 저장 경로 미설정
 def start():
