@@ -1,32 +1,40 @@
-from openpyxl import Workbook
 from openpyxl import load_workbook
 
-# write_wb = Workbook()
-# # 워크북 인스턴스 생성
-# # write_wb.save("test.xlsx")
+wb = load_workbook("D:/horolro/openpyxl/testxl.xlsx")
+# print(wb)
 
-# write_ws = write_wb.create_sheet("sheet1")
+# print(wb.sheetnames)
 
-# write_ws = write_wb.active
-# write_ws["a1"] = "1 row a column"
+# print(wb.get_sheet_names())  # 더 이상 사용되지 않는 함수 : DeprecationWarning: Call to deprecated function get_sheet_names
 
-# write_ws.append([1, 2, 3])
+# print(wb['Sheet1'])
+# print(wb['Sheet2'])
 
-# write_ws.cell(5, 5, "5row 5column")
+# a = wb.get_sheet_by_name('Sheet1') # 더 이상 사용되지 않는 함수 : DeprecationWarning: Call to deprecated function get_sheet_names
+# print(a)
 
-# write_wb.save("D:/horolro/testpytoex.xlsx")
+# ws = wb['Sheet1']
+# print(ws)
+# sheet 이름을 모를 때
+# ws = wb[wb.sheetnames[0]]
+# print(ws)
 
-load_wb = load_workbook("D:/horolro/test_output.xlsx", data_only=True)
-# data_only=True 값으로 받아오기.
+ws = wb[wb.sheetnames[0]]
 
-load_ws = load_wb["RFID"]
+# 셀에서 데이터값 불러오기 (value 가 존재하지 않을 경우 None (=0)을 리턴)
+# print(ws['A1'].value)
+# print(ws.cell(row=1, column=2).value)
 
-print(load_ws["C5"].value)
-# 배열 주소 사용
-print(load_ws.cell(3, 2).value)
-# 모듈 내 함수 사용
+get_data = ws['A1':'C2']
+print(get_data)  # tuple
 
-get_cells = load_ws["B3":"B6"]
-for row in get_cells:
+for row in get_data:
     for cell in row:
-        print(cell.value)
+        print(cell.value, end=' ')
+    print()
+
+# column 단위로 끊어 tuple 형식으로 저장되어 있기에 2차원 배열을 써서 불러온다.    
+
+print(ws.max_row) # 2
+print(ws.max_column) # 3
+print(ws.dimensions) # A1:C2
