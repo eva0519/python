@@ -16,7 +16,7 @@ def file_open():
     files = filedialog.askopenfilenames(
         title="병합시킬 이미지를 선택해주세요.",
         filetype=(("모든 파일", "*.*"), ("PNG 파일", "*.png"), ("JPG 파일", "*.jpg"), ("BMP 파일", "*.bmp"), ("GIF 파일", "*.gif")),
-        initialdir=r"D:\목포어린이도서관[전산]\2021년\4. 홈페이지\2021독서의달",
+        initialdir="D:/",
     )
     for file in files:
         list_file.insert(END, file)
@@ -42,40 +42,77 @@ def save_file_path():
 
 # 병합 프로세스
 def image_merge():
-    # list 이미지로부터 정보 추출
-    images = [Image.open(x) for x in list_file.get(0, END)] # class 'PIL.JpegImagePlugin.JpegImageFile' 타입으로 배열 저장
-    images_width = [x.size[0] for x in images]
-    images_height = [x.size[1] for x in images]
+    # print("가로넓이 : ", cmb_width.get())
+    # print("간격 : ", cmb_space.get())
+    # print("포맷 : ", cmb_format.get())
 
-    print("이미지 가로 해상도 : ", images_width)
-    print("이미지 세로 해상도 : ", images_height)
+    # option config
+    try:
+        image_width = cmb_width.get()
+        if image_width == '원본유지':
+            image_width = -1
+        else:
+            image_width = int(image_width)
 
-    # canvas 준비
-    width_max, height_total = max(images_width), sum(images_height)
-    print('이미지 가로 최대 값 : ', width_max, '\n이미지 세로 통합 값 : ', height_total)
+        image_space = cmb_space.get()
+        if image_space == '없음':
+            image_space = 0
+        elif image_space == '좁게':
+            image_space = 30
+        elif image_space == '보통':
+            image_space = 60
+        else:
+            image_space = 90
 
-    result_img = Image.new('RGB', (width_max, height_total), (255, 255, 255))
-    y_offset = 0
-    for idx, img in enumerate(images):
-        result_img.paste(img, (0, y_offset))
-        y_offset += img.size[1]  # 각 이미지 height value 꺼내와서 offset 변수 증감
+        image_format = cmb_format.get().lower()
+        
+        # list 이미지로부터 정보 추출
+        images = [Image.open(x) for x in list_file.get(0, END)] # class 'PIL.JpegImagePlugin.JpegImageFile'
 
-        # progressbar sync
-        time.sleep(0.1)  # 동기화 확인용 나중에 삭제
-        progress = ((idx + 1) / len(images)) * 100  # (1,2,3... / 이미지 갯수) * 100 
-        p_var.set(progress)
-        progressbar.update()
+        # tuple 타입으로 list 만들어 해상도 옵션 적용
+        image_sizes = []  # (( height1, width1 ), ( height2, width2 ), ...)
+        
+        if image_width > -1:
+            image_sizes = [(int(image_width), int(image_width * x.size[1] / x.size[0])) for x in images] # 원본 유지가 아닐 경우
+            # x : y = x' : y', xy' = x'y    y' = x'y / x  resolution fix
 
-    dest_path = os.path.join(txt_dest_path.get(), 'mergeImage.jpg')
-    result_img.save(dest_path)
-    msgbox.showinfo(title='성공', message='이미지 병합이 완료되었습니다.')
+        else:
+            image_sizes = [((x.size[0]), (x.size[1])) for x in images] # 원본 유지일 경우
+
+        widths, heights = zip(*(image_sizes))
+
+        # canvas 준비
+        width_max, height_total = max(widths), sum(heights)
+        # print('이미지 가로 최대 값 : ', width_max, '\n이미지 세로 통합 값 : ', height_total)
+        
+        # image_space 적용
+        if image_space > -1:
+            height_total += image_space * (len(images) - 1)
+
+        result_img = Image.new('RGB', (width_max, height_total), (255, 255, 255))  # width_max 값을 fix 된 값에 동기화시켜야함
+        y_offset = 0
+        for idx, img in enumerate(images):
+            img = img.resize(image_sizes[idx]) # fix 된 이미지 크기를 각 원본에 적용 
+            result_img.paste(img, (0, y_offset))
+            y_offset += (img.size[1] + image_space)  # 각 이미지 height value 꺼내와서 offset 변수 증감
+
+            # progressbar sync
+            time.sleep(0.1)  # 동기화 확인용 나중에 삭제
+            progress = ((idx + 1) / len(images)) * 100  # (1,2,3... / 이미지 갯수) * 100 
+            p_var.set(progress)
+            progressbar.update()
+
+        # image_format 적용
+        expansion_file_name = 'mergeImage.' + image_format
+        dest_path = os.path.join(txt_dest_path.get(), expansion_file_name)
+        result_img.save(dest_path)
+        msgbox.showinfo(title='성공', message='이미지 병합이 완료되었습니다.')
+    
+    except Exception as err:  # 예외사항 처리. c drive root auth, defined path 등 
+        msgbox.showerror('에러', err)
 
 # 예외처리 : 이미지 미선택, 저장 경로 미설정
 def start():
-    print("가로넓이 : ", cmb_width.get())
-    print("간격 : ", cmb_space.get())
-    print("포맷 : ", cmb_format.get())
-
     if list_file.size() == 0:
         msgbox.showwarning(title='경고', message="병합시킬 이미지가 존재하지 않습니다.")
         msgbox.showinfo(message="이미지 병합이 중단되었습니다.")
@@ -146,7 +183,7 @@ lbl_width = Label(frame_option, text="가로넓이", width=8)
 lbl_width.pack(side="left", padx=5, pady=5)
 
 # 가로 넓이 콤보
-opt_width = ["원본유지", "1024", "800", "640"]
+opt_width = ["원본유지", "800", "750", "700"]
 cmb_width = ttk.Combobox(frame_option, state="readonly", values=opt_width, width=10)
 cmb_width.current(0)
 cmb_width.pack(side="left", padx=5, pady=5)
