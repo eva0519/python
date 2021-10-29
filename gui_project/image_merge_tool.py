@@ -11,6 +11,11 @@ root.title("Image Merge Tool")
 
 root.geometry("+550+200")
 
+# const variable
+REP_VIEW = 750
+PRO_VIEW = 700
+SLI_VIEW = 701
+
 # 병합 이미지 선택 함수 정의
 def file_open():
     files = filedialog.askopenfilenames(
@@ -52,7 +57,12 @@ def image_merge():
         if image_width == '원본유지':
             image_width = -1
         else:
-            image_width = int(image_width)
+            if image_width == '공지사항':
+                image_width = REP_VIEW
+            elif image_width == '프로그램신청':
+                image_width = PRO_VIEW
+            elif image_width == '메인슬라이드':
+                image_width = SLI_VIEW
 
         image_space = cmb_space.get()
         if image_space == '없음':
@@ -183,7 +193,7 @@ lbl_width = Label(frame_option, text="가로넓이", width=8)
 lbl_width.pack(side="left", padx=5, pady=5)
 
 # 가로 넓이 콤보
-opt_width = ["원본유지", "800", "750", "700"]
+opt_width = ["원본유지", "공지사항", "프로그램신청", "메인슬라이드"]
 cmb_width = ttk.Combobox(frame_option, state="readonly", values=opt_width, width=10)
 cmb_width.current(0)
 cmb_width.pack(side="left", padx=5, pady=5)
