@@ -39,7 +39,6 @@ def image_ct():
     time.sleep(3)
     text.set('캡쳐 시작')
 
-
 # 스트리밍 정의
 def streaming_save():
     pass
