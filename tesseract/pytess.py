@@ -4,7 +4,6 @@ import argparse
 import cv2
 import os
  
-
 # load the example image and convert it to grayscale
 image = cv2.imread("D:\\horolro\\tesseract\\test.png")
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
