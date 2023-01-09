@@ -17,3 +17,4 @@ btn3 = Button(root, text="동작하는 버튼", command=btncmd)
 btn3.pack()
 
 root.mainloop()
+
